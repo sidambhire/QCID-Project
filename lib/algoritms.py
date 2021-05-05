@@ -1,5 +1,6 @@
 #!/bin/python
-#Taken from https://qiskit.org/textbook/ch-algorithms/deutsch-jozsa.html and modified
+#Taken from https://qiskit.org/textbook/ch-algorithms/deutsch-jozsa.html and modified using https://www.nature.com/articles/s41467-017-01904-7
+
 # initialization
 import numpy as np
 
@@ -24,37 +25,55 @@ def oracle(val, n):
     # corresponds to a qubit, if the digit is 0, we do nothing, if it's 1
     # we apply an X-gate to that qubit:
     for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
+        if b_str[qubit] == '0':
             oracle_qc.x(qubit)
-    # Do the controlled-NOT gates for each qubit, using the output qubit 
-    # as the target:
-    for qubit in range(n):
-        oracle_qc.cx(qubit, n)
+    # Do multi-controlled-X gate
+    oracle_qc.mct(list(range(n)), n)
+    
+    
     # Next, place the final X-gates
     for qubit in range(len(b_str)):
-        if b_str[qubit] == '1':
+        if b_str[qubit] == '0':
             oracle_qc.x(qubit)
 
     
     oracle_gate = oracle_qc.to_gate()
-    oracle_gate.name = "Oracle" # To show when we display the circuit
-    return oracle_gate
-    
-#TODO: Implementation is being tested
-def grover_algorithm(oracle, n):
+    oracle_gate.name = "U$_\omega$" # To show when we display the circuit
+    return oracle_gate, oracle_qc
+
+def diffuser(nqubits):
+    qc = QuantumCircuit(nqubits)
+    # Apply transformation |s> -> |00..0> (H-gates)
+    for qubit in range(nqubits):
+        qc.h(qubit)
+    # Apply transformation |00..0> -> |11..1> (X-gates)
+    for qubit in range(nqubits):
+        qc.x(qubit)
+    # Do multi-controlled-Z gate
+    qc.h(nqubits-1)
+    qc.mct(list(range(nqubits-1)), nqubits-1)  # multi-controlled-toffoli
+    qc.h(nqubits-1)
+    # Apply transformation |11..1> -> |00..0>
+    for qubit in range(nqubits):
+        qc.x(qubit)
+    # Apply transformation |00..0> -> |s>
+    for qubit in range(nqubits):
+        qc.h(qubit)
+    # We will return the diffuser as a gate
+    U_s = qc.to_gate()
+    U_s.name = "U$_s$"
+    return U_s, qc
+
+def grover_algorithm(oracle, diffuser_gate, n):
     grover_circuit = QuantumCircuit(n+1, n)
-    # Set up the output qubit:
-    grover_circuit.x(n)
-    grover_circuit.h(n)
     # And set up the input register:
-    for qubit in range(n):
+    for qubit in range(n+1):
         grover_circuit.h(qubit)
     # Let's append the oracle gate to our circuit:
-    for iteration in range(int(np.sqrt(n))):
+    for iteration in range(int(n)):
         grover_circuit.append(oracle, range(n+1))
-    # Finally, perform the H-gates again and measure:
-    for qubit in range(n):
-        grover_circuit.h(qubit)
+        grover_circuit.h(n)
+        grover_circuit.append(diffuser_gate,range(n))
     
     for i in range(n):
         grover_circuit.measure(i, i)
