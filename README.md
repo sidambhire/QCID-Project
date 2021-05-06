@@ -8,3 +8,6 @@ This is final project for Quantum Computers, Information and Devices course (QCI
 [Henrique Pereira](https://github.com/henriqueop486)
 
 [Mercy Amankwah](https://github.com/ladyjulia)
+
+### References:
+[Grover Adaptive Search for Constrained Polynomial Binary Optimization, Gilliam et. al.](https://arxiv.org/abs/1911.04088)
