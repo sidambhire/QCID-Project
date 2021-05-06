@@ -20,7 +20,7 @@ def oracle(val, n):
     oracle_qc = QuantumCircuit(n+1)
     
     # Next, format 'val' as a binary string of length 'n', padded with zeros:
-    b_str = format(val, '0'+str(n)+'b')
+    b_str = format(pow(2,n)-1-val, '0'+str(n)+'b')
     # Next, we place the first X-gates. Each digit in our binary string 
     # corresponds to a qubit, if the digit is 0, we do nothing, if it's 1
     # we apply an X-gate to that qubit:
