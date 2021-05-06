@@ -1,7 +1,7 @@
 # QCID-Project: Grover Optimizer algorithm
 This is final project for Quantum Computers, Information and Devices course (QCID486). We have implemented the optimizer code using algorithm derived from Grover's Search algorithm.
 
-### Coolaborators:
+### Collaborators:
 
 [Andy Hu](https://github.com/andyhu831)
 
